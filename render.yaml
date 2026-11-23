@@ -8,7 +8,6 @@ services:
       pip install -r requirements.txt &&
       python -m spacy download es_core_news_sm &&
       python manage.py collectstatic --noinput
-    preDeployCommand: python manage.py migrate --noinput
     startCommand: python manage.py migrate --noinput && python manage.py cargar_demo && gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 1 --timeout 120
     envVars:
       - key: PYTHON_VERSION
