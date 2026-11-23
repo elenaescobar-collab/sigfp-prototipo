@@ -1,0 +1,126 @@
+{% extends "finanzas/base.html" %}
+{% block titulo %}Tablero · SIGFP{% endblock %}
+{% block n1 %}activo{% endblock %}
+{% block contenido %}
+
+<h1>Tablero de indicadores</h1>
+<p class="sub">Periodo {{ etiqueta_periodo }} · Indicadores derivados de los movimientos registrados</p>
+
+<div class="kpis">
+  <div class="kpi">
+    <div class="et">Ingresos del periodo</div>
+    <div class="va pos">${{ ingresos|floatformat:2 }}</div>
+  </div>
+  <div class="kpi">
+    <div class="et">Egresos del periodo</div>
+    <div class="va neg">${{ egresos|floatformat:2 }}</div>
+    {% if variacion is not None %}
+      <div class="nota">{% if variacion > 0 %}▲ +{% else %}▼ {% endif %}{{ pct_variacion }} % respecto del mes anterior</div>
+    {% endif %}
+  </div>
+  <div class="kpi">
+    <div class="et">Balance</div>
+    <div class="va {% if balance >= 0 %}pos{% else %}neg{% endif %}">${{ balance|floatformat:2 }}</div>
+    <div class="nota">Ingresos menos egresos</div>
+  </div>
+  <div class="kpi">
+    <div class="et">Tasa de ahorro</div>
+    <div class="va">{% if tasa_ahorro is not None %}{{ pct_ahorro }} %{% else %}—{% endif %}</div>
+    <div class="nota">(Ingresos − Egresos) / Ingresos</div>
+  </div>
+  <div class="kpi">
+    <div class="et">Gasto fijo</div>
+    <div class="va">{% if proporcion_fijo is not None %}{{ pct_fijo }} %{% else %}—{% endif %}</div>
+    <div class="nota">Proporción del egreso total</div>
+  </div>
+  <div class="kpi">
+    <div class="et">Categorización automática</div>
+    <div class="va">{% if cobertura is not None %}{{ pct_cobertura }} %{% else %}—{% endif %}</div>
+    <div class="nota">Cobertura del motor de reglas</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Evolución de ingresos y egresos</h2>
+  <svg viewBox="0 0 660 170" width="100%" height="180" role="img"
+       aria-label="Comparativo mensual de ingresos y egresos">
+    <line x1="34" y1="134" x2="648" y2="134" stroke="#d8dce4" stroke-width="1"/>
+    {% for s in serie %}
+      <rect x="{{ s.x_ing }}" y="{{ s.y_ing }}" width="19" height="{{ s.h_ing }}" fill="#1d7a52" rx="2"/>
+      <rect x="{{ s.x_egr }}" y="{{ s.y_egr }}" width="19" height="{{ s.h_egr }}" fill="#a8322b" rx="2"/>
+      <text x="{{ s.x_lbl }}" y="152" font-size="11.5" fill="#4a5565" text-anchor="middle">{{ s.etiqueta }}</text>
+    {% endfor %}
+    <rect x="470" y="8" width="11" height="11" fill="#1d7a52" rx="2"/>
+    <text x="488" y="18" font-size="11.5" fill="#4a5565">Ingresos</text>
+    <rect x="556" y="8" width="11" height="11" fill="#a8322b" rx="2"/>
+    <text x="574" y="18" font-size="11.5" fill="#4a5565">Egresos</text>
+  </svg>
+</div>
+
+<div class="dos">
+  <div class="panel">
+    <h2>Composición del gasto por categoría</h2>
+    {% if por_categoria %}
+    <table>
+      <tr><th>Categoría</th><th style="text-align:right">Monto</th><th style="width:40%">Participación</th></tr>
+      {% for f in por_categoria %}
+      <tr>
+        <td>{{ f.categoria }}</td>
+        <td class="num">${{ f.total|floatformat:2 }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:9px">
+            <div class="barra" style="flex:1"><span style="width:{{ f.pct }}%;background:{{ f.color }}"></span></div>
+            <span style="font-size:12px;color:#4a5565;min-width:46px;text-align:right">{{ f.pct }} %</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="vacio">Sin egresos registrados en el periodo.</p>{% endif %}
+  </div>
+
+  <div class="panel">
+    <h2>Cumplimiento de presupuestos</h2>
+    {% if presupuestos %}
+    <table>
+      <tr><th>Categoría</th><th style="text-align:right">Ejercido / Límite</th><th style="width:34%">Uso</th></tr>
+      {% for p in presupuestos %}
+      <tr>
+        <td>{{ p.categoria }}</td>
+        <td class="num">${{ p.gastado|floatformat:2 }} / ${{ p.limite|floatformat:2 }}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:9px">
+            <div class="barra" style="flex:1"><span class="{% if p.excedido %}alerta{% endif %}" style="width:{{ p.pct_barra }}%"></span></div>
+            <span style="font-size:12px;min-width:46px;text-align:right;color:{% if p.excedido %}#a8322b{% else %}#4a5565{% endif %}">{{ p.pct }} %</span>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}<p class="vacio">Sin presupuestos definidos para el periodo.</p>{% endif %}
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Metas de ahorro</h2>
+  {% if metas %}
+  <table>
+    <tr><th>Meta</th><th style="text-align:right">Acumulado / Objetivo</th><th>Fecha objetivo</th><th style="width:30%">Avance</th></tr>
+    {% for m in metas %}
+    <tr>
+      <td>{{ m.nombre }}</td>
+      <td class="num">${{ m.acumulado|floatformat:2 }} / ${{ m.objetivo|floatformat:2 }}</td>
+      <td>{{ m.fecha_objetivo }}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div class="barra" style="flex:1"><span style="width:{{ m.pct }}%"></span></div>
+          <span style="font-size:12px;color:#4a5565;min-width:46px;text-align:right">{{ m.pct }} %</span>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="vacio">Sin metas de ahorro activas.</p>{% endif %}
+</div>
+
+{% endblock %}

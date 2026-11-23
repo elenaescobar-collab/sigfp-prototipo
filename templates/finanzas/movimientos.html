@@ -1,0 +1,47 @@
+{% extends "finanzas/base.html" %}
+{% block titulo %}Movimientos · SIGFP{% endblock %}
+{% block n2 %}activo{% endblock %}
+{% block contenido %}
+
+<h1>Registro de ingresos y egresos</h1>
+<p class="sub">Captura manual con categorización automatizada por reglas. Si no se asigna categoría, el motor la sugiere a partir de la descripción.</p>
+
+{% if mensaje %}<div class="aviso ok">{{ mensaje }}</div>{% endif %}
+{% if form.errors %}<div class="aviso err">Revisa los campos marcados; el movimiento no se registró.</div>{% endif %}
+<div class="panel">
+  <h2>Nuevo movimiento</h2>
+  <form class="alta" method="post" novalidate>
+    {% csrf_token %}
+    <div><label for="{{ form.fecha.id_for_label }}">Fecha</label>{{ form.fecha }}{{ form.fecha.errors }}</div>
+    <div><label for="{{ form.descripcion.id_for_label }}">Descripción</label>{{ form.descripcion }}{{ form.descripcion.errors }}</div>
+    <div><label for="{{ form.monto.id_for_label }}">Monto</label>{{ form.monto }}{{ form.monto.errors }}</div>
+    <div><label for="{{ form.categoria.id_for_label }}">Categoría</label>{{ form.categoria }}{{ form.categoria.errors }}</div>
+    <div><label for="{{ form.sentido.id_for_label }}">Si no hay regla</label>{{ form.sentido }}</div>
+    <div><button type="submit">Registrar</button></div>
+  </form>
+</div>
+
+<div class="panel">
+  <h2>Movimientos registrados{% if cobertura is not None %} · {{ pct_cobertura }} % categorizados automáticamente{% endif %}</h2>
+  {% if movimientos %}
+  <table>
+    <tr>
+      <th>Fecha</th><th>Descripción</th><th style="text-align:right">Monto</th>
+      <th>Categoría</th><th>Origen</th><th>Clasificación</th>
+    </tr>
+    {% for m in movimientos %}
+    <tr>
+      <td>{{ m.fecha }}</td>
+      <td>{{ m.descripcion }}</td>
+      <td class="num {% if m.es_ingreso %}pos{% else %}neg{% endif %}">
+        {% if m.es_ingreso %}+{% else %}−{% endif %}${{ m.monto|floatformat:2 }}</td>
+      <td>{% if m.categoria %}<span class="chip" style="background:{{ m.categoria.color }}1a;color:{{ m.categoria.color }}">{{ m.categoria.nombre }}</span>{% else %}<span class="vacio">sin categoría</span>{% endif %}</td>
+      <td style="font-size:12.5px;color:#4a5565">{{ m.get_origen_display }}</td>
+      <td>{% if m.categorizado_automaticamente %}<span class="chip auto">automática</span>{% elif m.categoria.nombre == "Otros egresos" or m.categoria.nombre == "Otros ingresos" %}<span class="chip" title="Ninguna regla coincidió">respaldo</span>{% else %}<span class="chip">manual</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="vacio">Aún no hay movimientos registrados.</p>{% endif %}
+</div>
+
+{% endblock %}

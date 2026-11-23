@@ -1,0 +1,52 @@
+{% extends "finanzas/base.html" %}
+{% block titulo %}Reportes · SIGFP{% endblock %}
+{% block n5 %}activo{% endblock %}
+{% block contenido %}
+
+<h1>Reportes financieros</h1>
+<p class="sub">Genera el reporte de un periodo con los indicadores del tablero, la composición del gasto, el cumplimiento presupuestal, el avance de metas y el detalle de movimientos.</p>
+
+<div class="panel">
+  <h2>Periodo</h2>
+  <form method="get" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+    <div style="width:240px">
+      <label for="periodo">Mes</label>
+      <select id="periodo" onchange="var v=this.value.split('-');document.getElementById('anio').value=v[0];document.getElementById('mes').value=v[1];this.form.submit()">
+        {% for a, m, etiqueta in periodos %}<option value="{{ a }}-{{ m }}" {% if a == anio and m == mes %}selected{% endif %}>{{ etiqueta|capfirst }}</option>{% empty %}<option>Sin movimientos</option>{% endfor %}
+      </select>
+    </div>
+    <input type="hidden" id="anio" name="anio" value="{{ anio }}">
+    <input type="hidden" id="mes" name="mes" value="{{ mes }}">
+  </form>
+</div>
+
+<div class="dos">
+  <div class="panel">
+    <h2>Resumen · {{ d.periodo }}</h2>
+    <table>
+      {% for k, v in resumen %}<tr><td>{{ k }}</td><td class="num">{{ v }}</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div class="panel">
+    <h2>Descargar</h2>
+    <p style="margin-top:0">El reporte contiene las mismas cifras que el tablero y el asistente, porque se calcula con las mismas funciones del módulo de indicadores.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="boton" href="?anio={{ anio }}&mes={{ mes }}&formato=pdf">PDF</a>
+      <a class="boton" href="?anio={{ anio }}&mes={{ mes }}&formato=xlsx">Excel (XLSX)</a>
+      <a class="boton" href="?anio={{ anio }}&mes={{ mes }}&formato=csv">CSV</a>
+    </div>
+    <p class="vacio" style="margin-top:14px">PDF para lectura y archivo; XLSX para análisis en hoja de cálculo; CSV con el detalle de movimientos.</p>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Gasto por categoría</h2>
+  {% if d.categorias %}
+  <table>
+    <tr><th>Categoría</th><th style="text-align:right">Total</th><th style="text-align:right">Porcentaje</th></tr>
+    {% for c in d.categorias %}<tr><td>{{ c.categoria }}</td><td class="num">${{ c.total|floatformat:2 }}</td><td class="num">{% widthratio c.porcentaje 1 100 %} %</td></tr>{% endfor %}
+  </table>
+  {% else %}<p class="vacio">No hay egresos en el periodo.</p>{% endif %}
+</div>
+
+{% endblock %}

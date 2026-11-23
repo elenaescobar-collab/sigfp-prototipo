@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acceso · SIGFP</title>
+<style>
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+       background:#f6f7f9;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .caja{background:#fff;border:1px solid #e3e6ec;border-radius:10px;padding:34px 36px;width:370px}
+  h1{font-size:17px;margin:0 0 4px;color:#141821}
+  p.s{font-size:12.5px;color:#4a5565;margin:0 0 22px}
+  label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:#4a5565;margin:14px 0 5px}
+  input{width:100%;padding:9px 10px;border:1px solid #ccd2dc;border-radius:6px;font-size:14px;box-sizing:border-box}
+  button{width:100%;margin-top:22px;background:#1f4e79;color:#fff;border:0;border-radius:6px;
+         padding:10px;font-size:14.5px;cursor:pointer}
+  .err{background:#fdecea;color:#a8322b;font-size:13px;padding:9px 11px;border-radius:6px;margin-bottom:14px}
+</style>
+</head>
+<body>
+  <div class="caja">
+    <h1>Sistema Inteligente de Gestión Financiera Personal</h1>
+    <p class="s">Prototipo académico · MGTIC · UABC</p>
+    {% if form.errors %}<div class="err">Usuario o contraseña incorrectos.</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <label for="id_username">Usuario</label>
+      <input type="text" name="username" id="id_username" autofocus required>
+      <label for="id_password">Contraseña</label>
+      <input type="password" name="password" id="id_password" required>
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+</body>
+</html>

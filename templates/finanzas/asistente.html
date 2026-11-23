@@ -1,0 +1,55 @@
+{% extends "finanzas/base.html" %}
+{% block titulo %}Asistente · SIGFP{% endblock %}
+{% block n4 %}activo{% endblock %}
+{% block contenido %}
+
+<h1>Asistente conversacional</h1>
+<p class="sub">Consulta tu información financiera en lenguaje natural. El sistema reconoce la intención y las entidades del enunciado, y responde a partir de tus propios movimientos.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="et">Intenciones reconocidas</div><div class="va">{{ intenciones }}</div>
+    <div class="nota">Catálogo cerrado y auditable</div></div>
+  <div class="kpi"><div class="et">Consultas procesadas</div><div class="va">{{ total_consultas }}</div>
+    <div class="nota">Registradas en bitácora</div></div>
+  <div class="kpi"><div class="et">Cobertura</div>
+    <div class="va pos">{% if cobertura is not None %}{{ cobertura }} %{% else %}—{% endif %}</div>
+    <div class="nota">Consultas resueltas</div></div>
+  <div class="kpi"><div class="et">Motor</div><div class="va" style="font-size:19px">spaCy</div>
+    <div class="nota">es_core_news_sm · sin LLM</div></div>
+</div>
+
+<div class="panel">
+  <h2>Conversación</h2>
+  <div class="chat">
+    {% for t in historial %}
+      <div class="burbuja usuario">{{ t.usuario }}</div>
+      <div class="burbuja sistema">
+        {{ t.sistema }}
+        {% if t.intencion %}
+        <div class="meta">
+          <span class="chip auto">{{ t.intencion }}</span>
+          {% if t.entidades.periodo %}<span class="chip">periodo: {{ t.entidades.periodo }}</span>{% endif %}
+          {% if t.entidades.categoria %}<span class="chip">categoría: {{ t.entidades.categoria }}</span>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p class="vacio">Escribe una consulta para comenzar.</p>
+    {% endfor %}
+  </div>
+  <form method="post" style="display:flex;gap:10px;margin-top:14px">
+    {% csrf_token %}
+    <input type="text" name="consulta" placeholder="¿Cuánto gasté este mes?" autofocus required style="flex:1">
+    <button type="submit">Preguntar</button>
+  </form>
+</div>
+
+<div class="panel">
+  <h2>Consultas que el asistente resuelve</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">
+    {% for e in ejemplos %}<span class="chip" style="font-size:12.5px;padding:5px 12px">{{ e }}</span>{% endfor %}
+  </div>
+  <p class="vacio" style="margin-top:12px">El asistente opera sobre un catálogo cerrado de intenciones. No genera texto: cada respuesta proviene de una consulta a la base de datos y puede auditarse.</p>
+</div>
+
+{% endblock %}

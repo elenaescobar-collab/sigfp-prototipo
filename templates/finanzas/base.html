@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}SIGFP{% endblock %}</title>
+<style>
+  :root{
+    --tinta:#141821; --tinta-2:#4a5565; --linea:#e3e6ec; --fondo:#f6f7f9;
+    --panel:#ffffff; --acento:#1f4e79; --verde:#1d7a52; --rojo:#a8322b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--tinta);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       font-size:15px;line-height:1.5}
+  header{background:var(--acento);color:#fff;padding:14px 28px;
+         display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+  header .marca{font-weight:600;letter-spacing:.2px}
+  header .marca small{display:block;font-weight:400;opacity:.8;font-size:11.5px;letter-spacing:.4px;text-transform:uppercase}
+  nav a{color:#fff;text-decoration:none;margin-left:20px;opacity:.85;font-size:14px}
+  nav a:hover,nav a.activo{opacity:1;border-bottom:2px solid #fff;padding-bottom:2px}
+  main{max-width:1120px;margin:26px auto 60px;padding:0 24px}
+  h1{font-size:21px;margin:0 0 4px}
+  .sub{color:var(--tinta-2);font-size:13.5px;margin:0 0 22px}
+  .panel{background:var(--panel);border:1px solid var(--linea);border-radius:8px;padding:18px 20px;margin-bottom:18px}
+  .panel h2{font-size:14px;text-transform:uppercase;letter-spacing:.6px;color:var(--tinta-2);margin:0 0 14px;font-weight:600}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:14px;margin-bottom:18px}
+  .kpi{background:var(--panel);border:1px solid var(--linea);border-radius:8px;padding:15px 17px}
+  .kpi .et{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--tinta-2)}
+  .kpi .va{font-size:25px;font-weight:600;margin-top:5px;font-variant-numeric:tabular-nums}
+  .kpi .nota{font-size:12px;color:var(--tinta-2);margin-top:3px}
+  .pos{color:var(--verde)} .neg{color:var(--rojo)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;
+     color:var(--tinta-2);border-bottom:1px solid var(--linea);padding:7px 8px;font-weight:600}
+  td{padding:8px;border-bottom:1px solid #f0f2f5;vertical-align:middle}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .barra{height:7px;background:#eef0f4;border-radius:4px;overflow:hidden;min-width:90px}
+  .barra span{display:block;height:100%;background:var(--acento)}
+  .barra span.alerta{background:var(--rojo)}
+  .chip{display:inline-block;padding:2px 9px;border-radius:11px;font-size:11.5px;
+        background:#eef1f6;color:var(--tinta-2)}
+  .chip.auto{background:#e6f1ec;color:var(--verde)}
+  form.alta{display:grid;grid-template-columns:140px 1fr 120px 190px 120px 108px;gap:10px;align-items:end}
+  .errorlist{list-style:none;margin:4px 0 0;padding:0;color:var(--rojo);font-size:12.5px}
+  .boton-sec{background:#fff;color:var(--acento);border:1px solid var(--acento)}
+  a.boton{display:inline-block;background:var(--acento);color:#fff;text-decoration:none;border-radius:6px;padding:9px 16px;font-size:14px}
+  label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--tinta-2);margin-bottom:4px}
+  input,select{width:100%;padding:8px 9px;border:1px solid #ccd2dc;border-radius:6px;font-size:14px;background:#fff;font-family:inherit}
+  button{background:var(--acento);color:#fff;border:0;border-radius:6px;padding:9px 16px;font-size:14px;cursor:pointer;font-family:inherit}
+  .dos{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .vacio{color:var(--tinta-2);font-size:13.5px;font-style:italic}
+  .aviso{padding:11px 14px;border-radius:7px;font-size:13.5px;margin-bottom:16px}
+  .aviso.ok{background:#e6f1ec;color:var(--verde);border:1px solid #c3e0d2}
+  .aviso.err{background:#fdecea;color:var(--rojo);border:1px solid #f2cdc9}
+  .chat{display:flex;flex-direction:column;gap:11px;max-height:310px;overflow-y:auto;padding:4px}
+  .burbuja{max-width:76%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.45}
+  .burbuja.usuario{align-self:flex-end;background:var(--acento);color:#fff;border-bottom-right-radius:3px}
+  .burbuja.sistema{align-self:flex-start;background:#eef1f6;color:var(--tinta);border-bottom-left-radius:3px}
+  .burbuja .meta{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap}
+  @media(max-width:860px){.dos{grid-template-columns:1fr}form.alta{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="marca">Sistema Inteligente de Gestión Financiera Personal
+    <small>Prototipo académico · MGTIC · UABC</small></div>
+  <nav>
+    <a href="{% url 'tablero' %}" class="{% block n1 %}{% endblock %}">Tablero</a>
+    <a href="{% url 'movimientos' %}" class="{% block n2 %}{% endblock %}">Movimientos</a>
+    <a href="{% url 'importar' %}" class="{% block n3 %}{% endblock %}">Importar</a>
+    <a href="{% url 'asistente' %}" class="{% block n4 %}{% endblock %}">Asistente</a>
+    <a href="{% url 'reportes' %}" class="{% block n5 %}{% endblock %}">Reportes</a>
+    <a href="/admin/">Administración</a>
+  </nav>
+</header>
+<main>{% block contenido %}{% endblock %}</main>
+</body>
+</html>
